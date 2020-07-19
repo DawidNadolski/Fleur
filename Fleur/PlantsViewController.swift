@@ -39,7 +39,7 @@ class PlantsViewController: UITableViewController {
         super.setEditing(editing, animated: true)
         tableView.setEditing(tableView.isEditing, animated: true)
     }
-    
+        
     override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         let item = plantsList.plants[sourceIndexPath.row]
         plantsList.move(item, to: destinationIndexPath.row)
@@ -60,7 +60,6 @@ class PlantsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.isEditing {
             deleteBarButton.isEnabled = !noRowsSelectedInEditingMode()
-            return
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -76,9 +75,20 @@ class PlantsViewController: UITableViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "AddItemSegue" {
-            if let addTaskViewController = segue.destination as? AddTaskTableViewController {
-                addTaskViewController.delegate = self
+        if segue.identifier == "AddPlantSegue" {
+            if let addPlantViewController = segue.destination as? AddPlantViewController {
+                addPlantViewController.delegate = self
+            }
+        }
+        if segue.identifier == "EditPlantSegue" {
+            if let addPlantViewController = segue.destination as? AddPlantViewController {
+                addPlantViewController.delegate = self
+                if let cell = sender as? UITableViewCell {
+                    if let indexPath = tableView.indexPath(for: cell) {
+                        let plant = plantsList.plants[indexPath.row]
+                        addPlantViewController.plantToEdit = plant
+                    }
+                }
             }
         }
     }
@@ -99,17 +109,17 @@ class PlantsViewController: UITableViewController {
     }
 }
 
-extension PlantsViewController: AddTaskViewControllerDelegate {
-    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String) {
-        let newPlant = Plant(name: itemName)
+extension PlantsViewController: AddPlantViewControllerDelegate {
+    func addPlantViewControllerDidCancel(_ controller: AddPlantViewController) {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    func addPlantViewController(_ controller: AddPlantViewController, didFinishAdding plant: Plant) {
+        navigationController?.popViewController(animated: true)
         let rowIndex = plantsList.plants.count
-        plantsList.plants.append(newPlant)
+        plantsList.plants.append(plant)
         let indexPath = IndexPath(row: rowIndex, section: 0)
         let indexPaths = [indexPath]
         tableView.insertRows(at: indexPaths, with: .automatic)
-    }
-    
-    func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController) {
-        navigationController?.popViewController(animated: true)
     }
 }
