@@ -77,8 +77,8 @@ class PlantsViewController: UITableViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "AddItemSegue" {
-            if let addItemViewController = segue.destination as? AddItemTableViewController {
-                addItemViewController.delegate = self
+            if let addTaskViewController = segue.destination as? AddTaskTableViewController {
+                addTaskViewController.delegate = self
             }
         }
     }
@@ -99,8 +99,8 @@ class PlantsViewController: UITableViewController {
     }
 }
 
-extension PlantsViewController: AddItemViewControllerDelegate {
-    func addItemViewControllerDidFinishAddingItem(_ controller: AddItemTableViewController, withTitle itemName: String) {
+extension PlantsViewController: AddTaskViewControllerDelegate {
+    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String) {
         let newPlant = Plant(name: itemName)
         let rowIndex = plantsList.plants.count
         plantsList.plants.append(newPlant)
@@ -109,7 +109,7 @@ extension PlantsViewController: AddItemViewControllerDelegate {
         tableView.insertRows(at: indexPaths, with: .automatic)
     }
     
-    func addItemViewControllerDidCancel(_ controller: AddItemTableViewController) {
+    func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController) {
         navigationController?.popViewController(animated: true)
     }
 }

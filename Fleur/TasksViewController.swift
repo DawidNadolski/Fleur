@@ -14,7 +14,6 @@ class TasksViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationController?.navigationBar.prefersLargeTitles = false
     }
     
@@ -45,31 +44,56 @@ class TasksViewController: UITableViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "AddItemSegue" {
-            if let addItemViewController = segue.destination as? AddItemTableViewController {
+        if segue.identifier == "AddTaskSegue" {
+            if let addItemViewController = segue.destination as? AddTaskTableViewController {
                 addItemViewController.delegate = self
+            }
+        } else if segue.identifier == "EditTaskSegue" {
+            if let addItemViewController = segue.destination as? AddTaskTableViewController {
+                addItemViewController.delegate = self
+                if let cell = sender as? UITableViewCell {
+                    if let indexPath = tableView.indexPath(for: cell) {
+                        let task = tasksList.tasks[indexPath.row]
+                        addItemViewController.taskToEdit = task
+                    }
+
+                }
             }
         }
     }
     
-    func configureText(for cell: UITableViewCell, with item: Task) {
+    func configureText(for cell: UITableViewCell, with task: Task) {
         if let taskCell = cell as? TasksTableViewCell {
-            taskCell.taskLabel.text = item.name
+            taskCell.taskLabel.attributedText = NSAttributedString(string: task.name)
         }
     }
     
-    func configureCheckmark(for cell: UITableViewCell, with item: Task) {
-        if item.isCompleted() {
-            cell.accessoryType = .checkmark
-        } else {
-            cell.accessoryType = .none
+    func configureCheckmark(for cell: UITableViewCell, with task: Task) {
+        
+        if let taskCell = cell as? TasksTableViewCell {
+            print("Got here!")
+            guard let taskLabel = taskCell.taskLabel,
+                let taskName = taskLabel.text else {
+                    print("TasksViewControler: configureCheckmark(): couldn't find taskLabel or taskName")
+                    return
+            }
+            
+            if task.isCompleted() {
+                let completedAttributedString = NSMutableAttributedString(string: taskName)
+                completedAttributedString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, completedAttributedString.length))
+                taskLabel.attributedText = completedAttributedString
+            } else {
+                taskLabel.attributedText = NSAttributedString(string: taskName)
+            }
+            
+            task.toggleChecked()
         }
-        item.toggleChecked()
     }
 }
 
-extension TasksViewController: AddItemViewControllerDelegate {
-    func addItemViewControllerDidFinishAddingItem(_ controller: AddItemTableViewController, withTitle itemName: String) {
+extension TasksViewController: AddTaskViewControllerDelegate {
+    
+    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String) {
         let newTask = Task(name: itemName)
         let rowIndex = tasksList.tasks.count
         tasksList.tasks.append(newTask)
@@ -79,7 +103,7 @@ extension TasksViewController: AddItemViewControllerDelegate {
     }
     
     
-    func addItemViewControllerDidCancel(_ controller: AddItemTableViewController) {
+    func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController) {
         navigationController?.popViewController(animated: true)
     }
 }
