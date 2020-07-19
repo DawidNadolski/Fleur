@@ -45,16 +45,16 @@ class TasksViewController: UITableViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "AddTaskSegue" {
-            if let addItemViewController = segue.destination as? AddTaskTableViewController {
-                addItemViewController.delegate = self
+            if let addTaskViewController = segue.destination as? AddTaskTableViewController {
+                addTaskViewController.delegate = self
             }
         } else if segue.identifier == "EditTaskSegue" {
-            if let addItemViewController = segue.destination as? AddTaskTableViewController {
-                addItemViewController.delegate = self
+            if let addTaskViewController = segue.destination as? AddTaskTableViewController {
+                addTaskViewController.delegate = self
                 if let cell = sender as? UITableViewCell {
                     if let indexPath = tableView.indexPath(for: cell) {
                         let task = tasksList.tasks[indexPath.row]
-                        addItemViewController.taskToEdit = task
+                        addTaskViewController.taskToEdit = task
                     }
 
                 }

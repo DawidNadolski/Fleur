@@ -76,12 +76,7 @@ extension AddTaskTableViewController: UITextFieldDelegate {
         }
         
         let newText = oldText.replacingCharacters(in: stringRange, with: string)
-        
-        if newText.isEmpty {
-            doneBarButton.isEnabled = false
-        } else {
-            doneBarButton.isEnabled = true
-        }
+        doneBarButton.isEnabled = !newText.isEmpty
         
         return true
     }
