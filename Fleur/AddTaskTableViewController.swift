@@ -8,37 +8,48 @@
 
 import UIKit
 
-protocol AddItemViewControllerDelegate: class {
+protocol AddTaskViewControllerDelegate: class {
     
-    func addItemViewControllerDidCancel(_ controller: AddItemTableViewController)
-    func addItemViewControllerDidFinishAddingItem(_ controller: AddItemTableViewController, withTitle itemName: String)
+    func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController)
+    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String)
 }
 
-class AddItemTableViewController: UITableViewController {
+class AddTaskTableViewController: UITableViewController {
     
-    weak var delegate: AddItemViewControllerDelegate?
+    weak var delegate: AddTaskViewControllerDelegate?
+    var taskToEdit: Task?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if let task = taskToEdit {
+            title = "Edit Task"
+            textfield.text = task.name
+            doneBarButton.isEnabled = true
+            
+        } else {
+            title = "Add Task"
+        }
+        
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
-    @IBOutlet weak var addBarButton: UIBarButtonItem!
     @IBOutlet weak var cancelBarButton: UIBarButtonItem!
     @IBOutlet weak var textfield: UITextField!
+    @IBOutlet weak var doneBarButton: UIBarButtonItem!
+    
     
     @IBAction func cancel(_ sender: Any) {
         navigationController?.popViewController(animated: true)
-        delegate?.addItemViewControllerDidCancel(self)
+        delegate?.addTaskViewControllerDidCancel(self)
     }
     
     @IBAction func done(_ sender: Any) {
         navigationController?.popViewController(animated: true)
-        var itemTitle = "New item"
+        var itemTitle = "New task"
         if let textFieldText = textfield.text {
             itemTitle = textFieldText
         }
-        delegate?.addItemViewControllerDidFinishAddingItem(self, withTitle: itemTitle)
+        delegate?.addTaskViewControllerDidFinishAddingItem(self, withTitle: itemTitle)
     }
     
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
@@ -50,7 +61,7 @@ class AddItemTableViewController: UITableViewController {
     }
 }
 
-extension AddItemTableViewController: UITextFieldDelegate {
+extension AddTaskTableViewController: UITextFieldDelegate {
     // method called when the user taps the keyboard’s return button
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textfield.resignFirstResponder()
@@ -67,9 +78,9 @@ extension AddItemTableViewController: UITextFieldDelegate {
         let newText = oldText.replacingCharacters(in: stringRange, with: string)
         
         if newText.isEmpty {
-            addBarButton.isEnabled = false
+            doneBarButton.isEnabled = false
         } else {
-            addBarButton.isEnabled = true
+            doneBarButton.isEnabled = true
         }
         
         return true
