@@ -20,7 +20,7 @@ class TasksViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tasksList.tasks.count
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Task", for: indexPath)
         let item = tasksList.tasks[indexPath.row]
@@ -100,8 +100,8 @@ extension TasksViewController: AddTaskViewControllerDelegate {
         let indexPath = IndexPath(row: rowIndex, section: 0)
         let indexPaths = [indexPath]
         tableView.insertRows(at: indexPaths, with: .automatic)
+        navigationController?.popViewController(animated: true)
     }
-    
     
     func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController) {
         navigationController?.popViewController(animated: true)

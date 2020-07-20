@@ -14,7 +14,7 @@ protocol AddTaskViewControllerDelegate: class {
     func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String)
 }
 
-class AddTaskTableViewController: UITableViewController {
+final class AddTaskTableViewController: UITableViewController {
     
     weak var delegate: AddTaskViewControllerDelegate?
     var taskToEdit: Task?
@@ -33,18 +33,16 @@ class AddTaskTableViewController: UITableViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
-    @IBOutlet weak var cancelBarButton: UIBarButtonItem!
-    @IBOutlet weak var textfield: UITextField!
-    @IBOutlet weak var doneBarButton: UIBarButtonItem!
+    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
+    @IBOutlet private weak var textfield: UITextField!
+    @IBOutlet private weak var doneBarButton: UIBarButtonItem!
     
     
     @IBAction func cancel(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
         delegate?.addTaskViewControllerDidCancel(self)
     }
     
     @IBAction func done(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
         var itemTitle = "New task"
         if let textFieldText = textfield.text {
             itemTitle = textFieldText

@@ -18,11 +18,10 @@ class AddPlantViewController: UITableViewController {
     weak var delegate: AddPlantViewControllerDelegate?
     var plantToEdit: Plant?
     
-    @IBOutlet weak var plantNameTextfield: UITextField!
-    @IBOutlet weak var plantSpeciesTextfield: UITextField!
-    @IBOutlet weak var doneBarButton: UIBarButtonItem!
+    @IBOutlet private weak var plantNameTextfield: UITextField!
+    @IBOutlet private weak var plantSpeciesTextfield: UITextField!
+    @IBOutlet private weak var doneBarButton: UIBarButtonItem!
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -37,12 +36,10 @@ class AddPlantViewController: UITableViewController {
     }
     
     @IBAction func cancel(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
         delegate?.addPlantViewControllerDidCancel(self)
     }
     
     @IBAction func done(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
         guard let plantName = plantNameTextfield.text,
             let plantSpecies = plantSpeciesTextfield.text else {
             return
@@ -51,20 +48,12 @@ class AddPlantViewController: UITableViewController {
         delegate?.addPlantViewController(self, didFinishAdding: plant)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        plantNameTextfield.becomeFirstResponder()
-    }
-    
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         return nil
     }
     
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
+    override func viewWillAppear(_ animated: Bool) {
+        plantNameTextfield.becomeFirstResponder()
     }
 }
 

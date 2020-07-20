@@ -11,7 +11,7 @@ import UIKit
 class PlantsViewController: UITableViewController {
     
     var plantsList = PlantsList()
-    @IBOutlet weak var deleteBarButton: UIBarButtonItem!
+    @IBOutlet private weak var deleteBarButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -110,16 +110,17 @@ class PlantsViewController: UITableViewController {
 }
 
 extension PlantsViewController: AddPlantViewControllerDelegate {
+    
     func addPlantViewControllerDidCancel(_ controller: AddPlantViewController) {
         navigationController?.popViewController(animated: true)
     }
     
     func addPlantViewController(_ controller: AddPlantViewController, didFinishAdding plant: Plant) {
-        navigationController?.popViewController(animated: true)
         let rowIndex = plantsList.plants.count
         plantsList.plants.append(plant)
         let indexPath = IndexPath(row: rowIndex, section: 0)
         let indexPaths = [indexPath]
         tableView.insertRows(at: indexPaths, with: .automatic)
+        navigationController?.popViewController(animated: true)
     }
 }
