@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Plant {
+class Plant: NSObject {
     
     var name: String
     var species: String
@@ -26,17 +26,9 @@ class Plant {
         image = nil
     }
     
-    init() {
+    override init() {
         self.name = ""
         species = ""
         image = nil
     }
-}
-
-extension Plant: Equatable {
-    static func == (lhs: Plant, rhs: Plant) -> Bool {
-        lhs.name == rhs.name && lhs.species == rhs.species
-    }
-    
-    
 }

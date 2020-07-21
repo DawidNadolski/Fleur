@@ -9,15 +9,36 @@
 import UIKit
 
 class PlantsViewController: UITableViewController {
-    
+
     var plantsList = PlantsList()
-    @IBOutlet weak var deleteBarButton: UIBarButtonItem!
+    var filteredPlants: [Plant] = []
+    
+    var isSearchBarEmpty: Bool {
+        return navigationItem.searchController?.searchBar.text?.isEmpty ?? true
+    }
+    
+    var isAtLeastOneRowSelectedInEditingMode: Bool {
+        return tableView.indexPathsForSelectedRows == nil ? false : true
+    }
+    
+    var isFiltering: Bool {
+        return navigationItem.searchController!.isActive && !isSearchBarEmpty
+    }
+    
+    @IBOutlet private weak var deleteBarButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
         navigationItem.leftBarButtonItem = editButtonItem
         tableView.allowsMultipleSelectionDuringEditing = true
+        tableView.allowsSelectionDuringEditing = true
+        
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search Plants"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
     }
     
     @IBAction func deleteItems(_ sender: Any) {
@@ -29,9 +50,8 @@ class PlantsViewController: UITableViewController {
             }
             plantsList.remove(items)
             tableView.deleteRows(at: selectedRows, with: .automatic)
-            tableView.endUpdates()
-        } else {
             deleteBarButton.isEnabled = false
+            tableView.endUpdates()
         }
     }
         
@@ -39,7 +59,7 @@ class PlantsViewController: UITableViewController {
         super.setEditing(editing, animated: true)
         tableView.setEditing(tableView.isEditing, animated: true)
     }
-    
+        
     override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         let item = plantsList.plants[sourceIndexPath.row]
         plantsList.move(item, to: destinationIndexPath.row)
@@ -48,25 +68,35 @@ class PlantsViewController: UITableViewController {
         
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Plant", for: indexPath)
-        let item = plantsList.plants[indexPath.row]
-        configureText(for: cell, with: item)
+        let plant: Plant
+        
+        if isFiltering {
+            plant = filteredPlants[indexPath.row]
+        } else {
+            plant = plantsList.plants[indexPath.row]
+        }
+        
+        configureText(for: cell, with: plant)
         return cell
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if isFiltering {
+            return filteredPlants.count
+        }
         return plantsList.plants.count
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.isEditing {
-            deleteBarButton.isEnabled = !noRowsSelectedInEditingMode()
-            return
+            deleteBarButton.isEnabled = isAtLeastOneRowSelectedInEditingMode
+        } else {
+            tableView.deselectRow(at: indexPath, animated: true)
         }
-        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        deleteBarButton.isEnabled = !noRowsSelectedInEditingMode()
+        deleteBarButton.isEnabled = isAtLeastOneRowSelectedInEditingMode
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -76,9 +106,20 @@ class PlantsViewController: UITableViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "AddItemSegue" {
-            if let addTaskViewController = segue.destination as? AddTaskTableViewController {
-                addTaskViewController.delegate = self
+        if segue.identifier == "AddPlantSegue" {
+            if let addPlantViewController = segue.destination as? AddPlantViewController {
+                addPlantViewController.delegate = self
+            }
+        }
+        if segue.identifier == "EditPlantSegue" {
+            if let addPlantViewController = segue.destination as? AddPlantViewController {
+                addPlantViewController.delegate = self
+                if let cell = sender as? UITableViewCell {
+                    if let indexPath = tableView.indexPath(for: cell) {
+                        let plant = plantsList.plants[indexPath.row]
+                        addPlantViewController.plantToEdit = plant
+                    }
+                }
             }
         }
     }
@@ -90,26 +131,43 @@ class PlantsViewController: UITableViewController {
         }
     }
     
-    func noRowsSelectedInEditingMode() -> Bool {
-        if tableView.indexPathsForSelectedRows == nil {
-            return true
-        } else {
-            return false
+    func filterContentForSearchText(_ searchText: String) {
+        filteredPlants = plantsList.plants.filter {(plant: Plant) -> Bool in
+            return plant.name.lowercased().contains(searchText.lowercased())
         }
+        tableView.reloadData()
     }
 }
 
-extension PlantsViewController: AddTaskViewControllerDelegate {
-    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String) {
-        let newPlant = Plant(name: itemName)
+extension PlantsViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let searchBar = searchController.searchBar
+        filterContentForSearchText(searchBar.text!)
+    }
+}
+
+extension PlantsViewController: AddPlantViewControllerDelegate {
+    
+    func addPlantViewControllerDidCancel(_ controller: AddPlantViewController) {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    func addPlantViewController(_ controller: AddPlantViewController, didFinishAdding plant: Plant) {
         let rowIndex = plantsList.plants.count
-        plantsList.plants.append(newPlant)
+        plantsList.plants.append(plant)
         let indexPath = IndexPath(row: rowIndex, section: 0)
         let indexPaths = [indexPath]
         tableView.insertRows(at: indexPaths, with: .automatic)
+        navigationController?.popViewController(animated: true)
     }
     
-    func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController) {
+    func addPlantViewController(_ controller: AddPlantViewController, didFinishEditing plant: Plant) {
+        if let index = plantsList.plants.firstIndex(of: plant) {
+            let indexPath = IndexPath(row: index, section: 0)
+            if let cell = tableView.cellForRow(at: indexPath) {
+                configureText(for: cell, with: plant)
+            }
+        }
         navigationController?.popViewController(animated: true)
     }
 }

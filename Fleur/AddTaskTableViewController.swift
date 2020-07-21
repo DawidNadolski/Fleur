@@ -11,10 +11,11 @@ import UIKit
 protocol AddTaskViewControllerDelegate: class {
     
     func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController)
-    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String)
+    func addTaskViewController(_ controller: AddTaskTableViewController, didFinishAdding task: Task)
+    func addTaskViewController(_ controller: AddTaskTableViewController, didFinishEditing task: Task)
 }
 
-class AddTaskTableViewController: UITableViewController {
+final class AddTaskTableViewController: UITableViewController {
     
     weak var delegate: AddTaskViewControllerDelegate?
     var taskToEdit: Task?
@@ -33,23 +34,27 @@ class AddTaskTableViewController: UITableViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
-    @IBOutlet weak var cancelBarButton: UIBarButtonItem!
-    @IBOutlet weak var textfield: UITextField!
-    @IBOutlet weak var doneBarButton: UIBarButtonItem!
+    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
+    @IBOutlet private weak var textfield: UITextField!
+    @IBOutlet private weak var doneBarButton: UIBarButtonItem!
     
     
     @IBAction func cancel(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
         delegate?.addTaskViewControllerDidCancel(self)
     }
     
     @IBAction func done(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
-        var itemTitle = "New task"
-        if let textFieldText = textfield.text {
-            itemTitle = textFieldText
+        if let task = taskToEdit {
+            if let taskName = textfield.text {
+                task.name = taskName
+                delegate?.addTaskViewController(self, didFinishEditing: task)
+            }
+        } else {
+            if let taskName = textfield.text {
+                let task = Task(name: taskName)
+                delegate?.addTaskViewController(self, didFinishAdding: task)
+            }
         }
-        delegate?.addTaskViewControllerDidFinishAddingItem(self, withTitle: itemTitle)
     }
     
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
@@ -76,12 +81,7 @@ extension AddTaskTableViewController: UITextFieldDelegate {
         }
         
         let newText = oldText.replacingCharacters(in: stringRange, with: string)
-        
-        if newText.isEmpty {
-            doneBarButton.isEnabled = false
-        } else {
-            doneBarButton.isEnabled = true
-        }
+        doneBarButton.isEnabled = !newText.isEmpty
         
         return true
     }

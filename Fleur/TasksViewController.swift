@@ -20,7 +20,7 @@ class TasksViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tasksList.tasks.count
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Task", for: indexPath)
         let item = tasksList.tasks[indexPath.row]
@@ -45,16 +45,16 @@ class TasksViewController: UITableViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "AddTaskSegue" {
-            if let addItemViewController = segue.destination as? AddTaskTableViewController {
-                addItemViewController.delegate = self
+            if let addTaskViewController = segue.destination as? AddTaskTableViewController {
+                addTaskViewController.delegate = self
             }
         } else if segue.identifier == "EditTaskSegue" {
-            if let addItemViewController = segue.destination as? AddTaskTableViewController {
-                addItemViewController.delegate = self
+            if let addTaskViewController = segue.destination as? AddTaskTableViewController {
+                addTaskViewController.delegate = self
                 if let cell = sender as? UITableViewCell {
                     if let indexPath = tableView.indexPath(for: cell) {
                         let task = tasksList.tasks[indexPath.row]
-                        addItemViewController.taskToEdit = task
+                        addTaskViewController.taskToEdit = task
                     }
 
                 }
@@ -92,17 +92,25 @@ class TasksViewController: UITableViewController {
 }
 
 extension TasksViewController: AddTaskViewControllerDelegate {
-    
-    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String) {
-        let newTask = Task(name: itemName)
+    func addTaskViewController(_ controller: AddTaskTableViewController, didFinishAdding task: Task) {
         let rowIndex = tasksList.tasks.count
-        tasksList.tasks.append(newTask)
+        tasksList.tasks.append(task)
         let indexPath = IndexPath(row: rowIndex, section: 0)
         let indexPaths = [indexPath]
         tableView.insertRows(at: indexPaths, with: .automatic)
+        navigationController?.popViewController(animated: true)
     }
     
-    
+    func addTaskViewController(_ controller: AddTaskTableViewController, didFinishEditing task: Task) {
+        if let index = tasksList.tasks.firstIndex(of: task) {
+            let indexPath = IndexPath(row: index, section: 0)
+            if let cell = tableView.cellForRow(at: indexPath) {
+                configureText(for: cell, with: task)
+            }
+        }
+        navigationController?.popViewController(animated: true)
+    }
+
     func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController) {
         navigationController?.popViewController(animated: true)
     }
