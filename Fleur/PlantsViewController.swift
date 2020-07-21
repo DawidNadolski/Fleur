@@ -160,4 +160,14 @@ extension PlantsViewController: AddPlantViewControllerDelegate {
         tableView.insertRows(at: indexPaths, with: .automatic)
         navigationController?.popViewController(animated: true)
     }
+    
+    func addPlantViewController(_ controller: AddPlantViewController, didFinishEditing plant: Plant) {
+        if let index = plantsList.plants.firstIndex(of: plant) {
+            let indexPath = IndexPath(row: index, section: 0)
+            if let cell = tableView.cellForRow(at: indexPath) {
+                configureText(for: cell, with: plant)
+            }
+        }
+        navigationController?.popViewController(animated: true)
+    }
 }

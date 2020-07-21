@@ -11,6 +11,7 @@ import UIKit
 protocol AddPlantViewControllerDelegate: class {
     func addPlantViewControllerDidCancel(_ controller: AddPlantViewController)
     func addPlantViewController(_ controller: AddPlantViewController, didFinishAdding plant: Plant)
+    func addPlantViewController(_ controller: AddPlantViewController, didFinishEditing plant: Plant)
 }
 
 class AddPlantViewController: UITableViewController, UIGestureRecognizerDelegate {
@@ -42,12 +43,23 @@ class AddPlantViewController: UITableViewController, UIGestureRecognizerDelegate
     }
     
     @IBAction func done(_ sender: Any) {
-        guard let plantName = plantNameTextfield.text,
-            let plantSpecies = plantSpeciesTextfield.text else {
-            return
+        
+        if let plant = plantToEdit {
+            guard let plantName = plantNameTextfield.text,
+                let plantSpecies = plantSpeciesTextfield.text else {
+                return
+            }
+            plant.name = plantName
+            plant.species = plantSpecies
+            delegate?.addPlantViewController(self, didFinishEditing: plant)
+        } else {
+            guard let plantName = plantNameTextfield.text,
+                let plantSpecies = plantSpeciesTextfield.text else {
+                return
+            }
+            let plant = Plant(name: plantName, species: plantSpecies)
+            delegate?.addPlantViewController(self, didFinishAdding: plant)
         }
-        let plant = Plant(name: plantName, species: plantSpecies)
-        delegate?.addPlantViewController(self, didFinishAdding: plant)
     }
     
     @objc func dismissKeyboard() {

@@ -92,17 +92,25 @@ class TasksViewController: UITableViewController {
 }
 
 extension TasksViewController: AddTaskViewControllerDelegate {
-    
-    func addTaskViewControllerDidFinishAddingItem(_ controller: AddTaskTableViewController, withTitle itemName: String) {
-        let newTask = Task(name: itemName)
+    func addTaskViewController(_ controller: AddTaskTableViewController, didFinishAdding task: Task) {
         let rowIndex = tasksList.tasks.count
-        tasksList.tasks.append(newTask)
+        tasksList.tasks.append(task)
         let indexPath = IndexPath(row: rowIndex, section: 0)
         let indexPaths = [indexPath]
         tableView.insertRows(at: indexPaths, with: .automatic)
         navigationController?.popViewController(animated: true)
     }
     
+    func addTaskViewController(_ controller: AddTaskTableViewController, didFinishEditing task: Task) {
+        if let index = tasksList.tasks.firstIndex(of: task) {
+            let indexPath = IndexPath(row: index, section: 0)
+            if let cell = tableView.cellForRow(at: indexPath) {
+                configureText(for: cell, with: task)
+            }
+        }
+        navigationController?.popViewController(animated: true)
+    }
+
     func addTaskViewControllerDidCancel(_ controller: AddTaskTableViewController) {
         navigationController?.popViewController(animated: true)
     }
