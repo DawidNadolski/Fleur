@@ -14,14 +14,17 @@ protocol AddPlantViewControllerDelegate: class {
     func addPlantViewController(_ controller: AddPlantViewController, didFinishEditing plant: Plant)
 }
 
-class AddPlantViewController: UITableViewController, UIGestureRecognizerDelegate {
+class AddPlantViewController: UITableViewController, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     
     weak var delegate: AddPlantViewControllerDelegate?
+    let imagePicker = UIImagePickerController()
     var plantToEdit: Plant?
     
     @IBOutlet private weak var plantNameTextfield: UITextField!
     @IBOutlet private weak var plantSpeciesTextfield: UITextField!
     @IBOutlet private weak var doneBarButton: UIBarButtonItem!
+    @IBOutlet private weak var plantImageView: UIImageView!
+    @IBOutlet private weak var editImageButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +35,14 @@ class AddPlantViewController: UITableViewController, UIGestureRecognizerDelegate
         if let plant = plantToEdit {
             plantNameTextfield.text = plant.name
             plantSpeciesTextfield.text = plant.species
+            if let plantImage = plant.image {
+                plantImageView.image = plantImage
+            } else {
+                let defaultImage = UIImage(named: "defaultImage")
+                plantImageView.image = defaultImage
+            }
             title = "Edit Plant"
+            doneBarButton.isEnabled = true
         } else {
             title = "Add Plant"
         }
@@ -40,6 +50,26 @@ class AddPlantViewController: UITableViewController, UIGestureRecognizerDelegate
     
     @IBAction func cancel(_ sender: Any) {
         delegate?.addPlantViewControllerDidCancel(self)
+    }
+    
+    @IBAction func chooseEditImageButton() {
+        if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum) {
+            imagePicker.delegate = self
+            imagePicker.sourceType = .savedPhotosAlbum
+            imagePicker.allowsEditing = false
+            
+            present(imagePicker, animated: true, completion: nil)
+        }
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let plantImage = info[.originalImage] as? UIImage {
+            plantImageView.image = plantImage
+            if let plant = plantToEdit {
+                plant.image = plantImage
+            }
+        }
+        imagePicker.dismiss(animated: true, completion: nil)
     }
     
     @IBAction func done(_ sender: Any) {
