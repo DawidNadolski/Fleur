@@ -16,14 +16,14 @@
                         <color key="backgroundColor" red="0.37923043969999998" green="0.76822000739999996" blue="0.6881307364" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="detailDisclosureButton" indentationWidth="10" reuseIdentifier="Task" id="Gi6-qi-WVY" userLabel="Task" customClass="TasksTableViewCell" customModule="Fleur" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="28" width="375" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Gi6-qi-WVY" id="ooN-q2-waF">
-                                    <rect key="frame" x="0.0" y="0.0" width="316" height="44"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="316" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="1000" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Yng-ZU-DKB" userLabel="TaskLabel">
-                                            <rect key="frame" x="20" y="11" width="276" height="21.5"/>
+                                            <rect key="frame" x="20" y="11" width="276" height="21"/>
                                             <attributedString key="attributedText">
                                                 <fragment content="Label">
                                                     <attributes>

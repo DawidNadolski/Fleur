@@ -13,7 +13,7 @@ protocol AddPlantViewControllerDelegate: class {
     func addPlantViewController(_ controller: AddPlantViewController, didFinishAdding plant: Plant)
 }
 
-class AddPlantViewController: UITableViewController {
+class AddPlantViewController: UITableViewController, UIGestureRecognizerDelegate {
     
     weak var delegate: AddPlantViewControllerDelegate?
     var plantToEdit: Plant?
@@ -21,10 +21,12 @@ class AddPlantViewController: UITableViewController {
     @IBOutlet private weak var plantNameTextfield: UITextField!
     @IBOutlet private weak var plantSpeciesTextfield: UITextField!
     @IBOutlet private weak var doneBarButton: UIBarButtonItem!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
+        view.addGestureRecognizer(tap)
         
         if let plant = plantToEdit {
             plantNameTextfield.text = plant.name
@@ -46,6 +48,10 @@ class AddPlantViewController: UITableViewController {
         }
         let plant = Plant(name: plantName, species: plantSpecies)
         delegate?.addPlantViewController(self, didFinishAdding: plant)
+    }
+    
+    @objc func dismissKeyboard() {
+        tableView.endEditing(true)
     }
     
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
